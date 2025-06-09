@@ -10,7 +10,7 @@ FastCP 2.0 is a modern, efficient control panel for managing PHP-based websites 
 
 ## Installation
 1. Clone the repository:
-   git clone https://github.com/yourusername/fastcp.git
+   git clone https://github.com/rehmatworks/fastcp.git
 
 2. Navigate to the project directory and install dependencies:
    cd fastcp
