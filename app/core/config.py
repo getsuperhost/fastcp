@@ -1,4 +1,5 @@
 from pathlib import Path
+from functools import lru_cache
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -39,6 +40,11 @@ class AppSettings(BaseSettings):
     # DB Settings
     DB_URL: str = Field(
         title='Database URL',
-        default='sqlite+aiosqlite://',
+        description='The DSN of the database.',
+        default=f'sqlite+aiosqlite:///{ROOT_DIR}/static/db.sqlite3'
     )
 
+
+@lru_cache
+def get_settings() -> AppSettings:
+    return AppSettings()
