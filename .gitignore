@@ -61,11 +61,10 @@ docs/
 *.sublime-workspace
 *.code-workspace
 
-# PyCharm
+# PyCharm-specific
 *.iml
 *.ipr
 *.iws
-.idea/
 
 # macOS
 .DS_Store
