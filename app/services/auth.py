@@ -1,3 +1,4 @@
+import pwd
 from datetime import timedelta
 import jwt
 from app.core.timezone import now
@@ -10,10 +11,19 @@ from app.core.exceptions import InvalidCredentials
 settings = get_settings()
 
 
-def create_jwt(username, hours_valid=1):
+def get_unix_uid(username):
+    """
+    Return the numeric Unix user ID for the given username.
+    """
+    user_info = pwd.getpwnam(username)
+    return user_info.pw_uid
+
+
+def create_jwt(user_id: int, username: str, hours_valid: int = 1):
     utc_now = now()
     payload = {
-        'sub': username,
+        'sub': user_id,
+        'username': username,
         'iat': utc_now,
         'exp': utc_now + timedelta(hours=hours_valid),
     }
@@ -41,4 +51,5 @@ async def process_login(username: str, password: str) -> dict:
         raise InvalidCredentials()
 
     # Generate and return a signed JWT
-    return {'access_token': create_jwt(username)}
+    user_id = get_unix_uid(username)
+    return {'access_token': create_jwt(user_id, username)}
