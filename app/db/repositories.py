@@ -6,13 +6,15 @@ from sqlalchemy import select, or_, func, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel
+from app.db.models import Website
+
 
 T = TypeVar('T', bound=SQLModel)
 
 
 class BaseRepository(Generic[T]):
     """
-    A generic base repository for CRUD operations on a SQLModel model.
+    A generic base repository for CRUD operations on an SQLModel model.
     Provides common methods like create, get, paginate, etc.
     """
 
@@ -206,3 +208,9 @@ class BaseRepository(Generic[T]):
             'limit': limit,
             'pages': math.ceil(total_count / limit) if limit else 1,
         }
+
+
+class WebsiteRepository(BaseRepository[Website]):
+    def __init__(self):
+        super().__init__(Website)
+        
