@@ -1,6 +1,3 @@
-FastCP Developers Readme
-=========================================================
-
 Introduction
 ------------
 FastCP manages Ubuntu servers to run PHP-based web applications.
