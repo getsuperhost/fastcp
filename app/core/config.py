@@ -29,6 +29,11 @@ class AppSettings(BaseSettings):
         description='Name of the application.',
         default='FastCP'
     )
+    APP_DESCRIPTION: str = Field(
+        title='App Description',
+        description='The description of the app.',
+        default='FastCP is a modern, minimal control panel to manage Ubuntu servers to run web applications.'
+    )
     APP_VERSION: str = Field(
         title='Application Version',
         description='The current version of the application.',

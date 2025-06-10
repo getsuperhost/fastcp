@@ -213,4 +213,3 @@ class BaseRepository(Generic[T]):
 class WebsiteRepository(BaseRepository[Website]):
     def __init__(self):
         super().__init__(Website)
-        
