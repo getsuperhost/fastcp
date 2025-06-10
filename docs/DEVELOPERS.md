@@ -1,14 +1,13 @@
-=========================================================
 FastCP Developers Readme
 =========================================================
 
-INTRODUCTION
+Introduction
 ------------
 FastCP manages Ubuntu servers to run PHP-based web applications.
 Future support for non-PHP applications is planned. It authenticates against
 existing Linux system users (no need for separate user management in the DB).
 
-DATABASE
+Database
 --------
 We use SQLite primarily to store:
   - Ownership references (e.g., which system user owns which web apps)
@@ -16,7 +15,7 @@ We use SQLite primarily to store:
 Because user and credential management happen at the system level, the DB
 does NOT store or manage user passwords.
 
-AUTHENTICATION
+Authentication
 --------------
 We rely on Python's PAM integration to authenticate existing Linux users. The
 panel will:
@@ -27,7 +26,7 @@ panel will:
 If you need to run commands as specific users, use the utility function in:
   app/utils/commands.py
 
-ARCHITECTURE
+Architecture
 ------------
 - `app/main.py`: Entry point for the FastAPI application server.
 - `app/services/`: Business logic.
@@ -36,19 +35,18 @@ ARCHITECTURE
 - `app/utils/`: Utility modules such as command execution helpers.
 - `tests/`: Unit and integration tests.
 
-LOCAL DEVELOPMENT
+Local Development
 ----------------
 1. Make sure you have the required dependencies installed (`pip install -r requirements.txt`).
 2. The application needs sufficient privileges or correct sudo configuration to authenticate system users and run commands as them.
 3. Ensure you have a properly configured PAM service on your Ubuntu server.
 
-FUTURE SUPPORT
+Future Support
 --------------
 - Non-PHP frameworks (Python, Node.js, etc.)
 
-CONTACT & CONTRIBUTIONS
+Contact & Contributions
 -----------------------
 - Please open an issue or pull request for questions, bug reports, or feature ideas.
 - Refer to LICENSE for usage and distribution terms.
 
-=========================================================
