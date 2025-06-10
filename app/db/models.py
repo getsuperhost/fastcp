@@ -9,8 +9,7 @@ class Website(SQLModel, table=True):
     system_user_id: int = Field(
         title='System User ID',
         description='The ID of the system user. For example, the ID of root user is 0.',
-        index=True
+        index=True,
     )
     label: str = Field(max_length=255)
     php_version: str = Field(max_length=10)
-
