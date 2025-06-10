@@ -1,20 +1,29 @@
+from datetime import timedelta
+import jwt
+from app.core.timezone import now
+from app.core.config import get_settings
 from app.services.pam import PamAuthenticator
 from app.core.exceptions import InvalidCredentials
 
 
-def create_jwt(username, secret, hours_valid=1):
+# Create settings object
+settings = get_settings()
+
+
+def create_jwt(username, hours_valid=1):
+    utc_now = now()
     payload = {
         'sub': username,
-        'iat': datetime.datetime.utcnow(),
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=hours_valid)
+        'iat': utc_now,
+        'exp': utc_now + timedelta(hours=hours_valid)
     }
-    token = jwt.encode(payload, secret, algorithm='HS256')
+    token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     return token
 
 
-def verify_jwt(token, secret):
+def verify_jwt(token):
     try:
-        decoded = jwt.decode(token, secret, algorithms=['HS256'])
+        decoded = jwt.decode(token, settings.JWT_SECRET, algorithms=settings.JWT_ALGORITHM)
         return decoded  # Returns the payload if valid
     except jwt.ExpiredSignatureError:
         return None     # Token has expired
@@ -31,5 +40,5 @@ async def process_login(username: str, password: str) -> dict:
 
     # Generate and return a signed JWT
     return {
-        'access_token': 'test'
+        'access_token': create_jwt(username)
     }

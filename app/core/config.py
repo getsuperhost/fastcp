@@ -42,6 +42,18 @@ class AppSettings(BaseSettings):
     TIMEZONE: str = Field(default='UTC')
     ROOT_DIR: Path = Path(__file__).parent.parent.parent
 
+    # JWT Settings
+    JWT_SECRET: str = Field(
+        title='JWT Secret',
+        description='The secret key to encrypt and decrypt the JWTs.',
+        default='--default-jwt-insecure-secret-key--'
+    )
+    JWT_ALGORITHM: str = Field(
+        title='JWT Algorithm',
+        description='JWT algorithm. Defaults to HS256.',
+        default='HS256'
+    )
+
     # DB Settings
     DB_URL: str = Field(
         title='Database URL',
