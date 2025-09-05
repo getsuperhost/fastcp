@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0005_alter_user_max_sites'),
+        ("core", "0005_alter_user_max_sites"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='max_sites',
+            model_name="user",
+            name="max_sites",
             field=models.IntegerField(default=10),
         ),
     ]

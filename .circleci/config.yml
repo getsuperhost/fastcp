@@ -1,16 +1,99 @@
-version: 2
+version: 2.1
+
+orbs:
+  python: circleci/python@2.1.1
+  node: circleci/node@6.3.0
+
 jobs:
-  build:
-    branches:
-      only:
-        - master
+  test:
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.12
+        environment:
+          PIP_CACHE_DIR: ~/.cache/pip
+      - image: cimg/mysql:8.0
+        environment:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: test_fastcp
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
 
     working_directory: ~/repo
 
     steps:
       - checkout
-      - run: sudo apt-get update && sudo apt-get -y install wget zip python3-pip && sudo pip3 install setuptools-scm && sudo pip3 install b2sdk
-      - run: wget -O master.zip https://github.com/rehmatworks/fastcp/archive/refs/heads/master.zip && unzip -qq master.zip && rm master.zip && rm -rf fastcp && mv fastcp-master fastcp && zip -qq -r latest.zip fastcp
-      - run: python3 ./update.py
+
+      - python/install-packages:
+          pip-dependency-file: requirements.txt
+
+      - node/install-packages:
+          cache-version: '1'
+
+      - run:
+          name: Install testing dependencies
+          command: |
+            pip install pytest pytest-django pytest-cov black isort flake8 bandit safety
+
+      - run:
+          name: Run code quality checks
+          command: |
+            black --check --diff .
+            isort --check-only --diff .
+            flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+            flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - run:
+          name: Run security scan
+          command: |
+            bandit -r . -f json -o security_report.json || true
+            safety check --json > safety_report.json || true
+
+      - run:
+          name: Run tests
+          command: |
+            python manage.py test --verbosity=2 --keepdb
+
+      - run:
+          name: Build frontend assets
+          command: npm run production
+
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: security_report.json
+
+      - store_artifacts:
+          path: safety_report.json
+
+  build-and-deploy:
+    docker:
+      - image: cimg/python:3.12
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update && sudo apt-get -y install wget zip python3-pip
+            sudo pip3 install setuptools-scm b2sdk
+
+      - run:
+          name: Build package
+          command: python3 ./update.py
+
+workflows:
+  test-and-deploy:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore: master
+      - build-and-deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+            - test

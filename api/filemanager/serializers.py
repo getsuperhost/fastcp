@@ -1,6 +1,7 @@
-from rest_framework import serializers
 import os
+
 from django.conf import settings
+from rest_framework import serializers
 
 
 class ValidPathSerializer(serializers.Serializer):
@@ -10,8 +11,7 @@ class ValidPathSerializer(serializers.Serializer):
     # module
     def validate_path(self, value):
         if value and not value.startswith(settings.FILE_MANAGER_ROOT):
-            raise serializers.ValidationError(
-                'The path you are trying to access is invalid.')
+            raise serializers.ValidationError("The path you are trying to access is invalid.")
         return value
 
 
@@ -26,17 +26,16 @@ class RemoteUploadSerializer(ValidPathSerializer):
     remote_url = serializers.URLField()
 
     def validate(self, data):
-        path = data.get('path')
-        remote_url = data.get('remote_url')
+        path = data.get("path")
+        remote_url = data.get("remote_url")
 
         if path and remote_url:
             filename = os.path.basename(remote_url)
             dest_path = os.path.join(path, filename)
-            
+
             # Check if file exists
             if os.path.exists(dest_path):
-                raise serializers.ValidationError({
-                    'remote_url': f'The destination file {dest_path} already exists.'})
+                raise serializers.ValidationError({"remote_url": f"The destination file {dest_path} already exists."})
         return data
 
 
@@ -52,38 +51,43 @@ class FileUploadSerializer(ValidPathSerializer):
 
 class ReadFileSerializer(ValidPathSerializer):
     """Defines fields required to read a file's content."""
+
     path = serializers.CharField()
 
 
 class ExtractArchiveSerializer(ValidPathSerializer):
     """Defines fields required to extract an archive."""
+
     path = serializers.CharField()
     root_path = serializers.CharField(required=False)
 
 
 class GenerateArchiveSerializer(ValidPathSerializer):
     """Defines fields required to generate an archive."""
+
     path = serializers.CharField(required=False)
     paths = serializers.CharField()
 
 
 class DeleteItemSerializer(serializers.Serializer):
     """Defines fields required to delete items."""
+
     paths = serializers.CharField()
 
 
 class FileUpdateSerializer(ValidPathSerializer):
     """Defines fields required to update a file's content."""
+
     path = serializers.CharField()
     content = serializers.CharField()
 
 
 class ItemCreateSerializer(ValidPathSerializer):
     """Defines fields required to create a file or a directory."""
+
     path = serializers.CharField(required=False)
     item_name = serializers.CharField(max_length=100)
-    item_type = serializers.ChoiceField(
-        choices=(('file', 'File'), ('directory', 'Directory')))
+    item_type = serializers.ChoiceField(choices=(("file", "File"), ("directory", "Directory")))
 
 
 class FileListSerializer(ValidPathSerializer):
@@ -94,19 +98,18 @@ class FileListSerializer(ValidPathSerializer):
     def validate_path(self, value):
         if value:
             if not os.path.exists(value):
-                raise serializers.ValidationError('Path does not exist.')
+                raise serializers.ValidationError("Path does not exist.")
             elif not os.path.isdir(value):
-                raise serializers.ValidationError('Path is not a directory.')
+                raise serializers.ValidationError("Path is not a directory.")
         return value
 
 
 class MoveItemsSerializer(ValidPathSerializer):
     path = serializers.CharField(required=False)
     paths = serializers.CharField()
-    action = serializers.CharField(default='move')
+    action = serializers.CharField(default="move")
 
     def validate_action(self, value):
-        if value not in ['move', 'copy']:
-            raise serializers.ValidationError(
-                'Invalid action specified. It should be either copy or move.')
+        if value not in ["move", "copy"]:
+            raise serializers.ValidationError("Invalid action specified. It should be either copy or move.")
         return value

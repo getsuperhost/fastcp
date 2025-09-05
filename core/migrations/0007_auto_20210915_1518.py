@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0006_alter_user_max_sites'),
+        ("core", "0006_alter_user_max_sites"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='website',
-            name='is_wp',
+            model_name="website",
+            name="is_wp",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='website',
-            name='php',
-            field=models.CharField(choices=[('7.1', 'PHP 7.1')], max_length=20),
+            model_name="website",
+            name="php",
+            field=models.CharField(choices=[("7.1", "PHP 7.1")], max_length=20),
         ),
     ]

@@ -10,8 +10,7 @@ class FastcpSqlService(object):
 
     def __init__(self) -> None:
         """We establish the MySQL connection in this method."""
-        self.con = mdb.connect(
-            host='localhost', user=settings.FASTCP_SQL_USER, passwd=settings.FASTCP_SQL_PASSWORD)
+        self.con = mdb.connect(host="localhost", user=settings.FASTCP_SQL_USER, passwd=settings.FASTCP_SQL_PASSWORD)
 
     def _execute_sql(self, sql: str, ret_result: bool = False) -> bool:
         """Execute SQL.
@@ -55,25 +54,21 @@ class FastcpSqlService(object):
         """
 
         # SQL statement
-        res_1 = self._execute_sql(
-            f"CREATE USER '{user}'@'localhost' IDENTIFIED BY '{password}'")
-        res_2 = self._execute_sql(
-            f"CREATE USER '{user}'@'%' IDENTIFIED BY '{password}'")
+        res_1 = self._execute_sql(f"CREATE USER '{user}'@'localhost' IDENTIFIED BY '{password}'")
+        res_2 = self._execute_sql(f"CREATE USER '{user}'@'%' IDENTIFIED BY '{password}'")
         res_3 = self._execute_sql(f"CREATE DATABASE {dbname}")
-        res_4 = self._execute_sql(
-            f"GRANT ALL PRIVILEGES ON {dbname}.* TO '{user}'@'localhost'")
-        res_5 = self._execute_sql(
-            f"GRANT ALL PRIVILEGES ON {dbname}.* TO '{user}'@'%'")
+        res_4 = self._execute_sql(f"GRANT ALL PRIVILEGES ON {dbname}.* TO '{user}'@'localhost'")
+        res_5 = self._execute_sql(f"GRANT ALL PRIVILEGES ON {dbname}.* TO '{user}'@'%'")
         res_6 = self._execute_sql("FLUSH PRIVILEGES")
         return all([res_1, res_2, res_3, res_4, res_5, res_6])
 
     def update_password(self, username: str, password: str) -> bool:
         """Update a user's password.
-        
+
         Args:
             username (str): MySQL username.
             password (str): New password for the user.
-            
+
         Returns:
             bool: True on success False otherwise.
         """
@@ -85,7 +80,6 @@ class FastcpSqlService(object):
         """Drops the database"""
         return self._execute_sql(f"DROP DATABASE {dbname}")
 
-    
     def drop_user(self, user: str) -> bool:
         """Drops the user"""
         res_1 = self._execute_sql(f"DROP USER '{user}'@'localhost'")

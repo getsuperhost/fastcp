@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  fastcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8899:8899"
+    environment:
+      - IS_DEBUG=0
+      - DJANGO_SETTINGS_MODULE=fastcp.settings
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-production-key-change-this}
+      - SERVER_IP_ADDR=${SERVER_IP_ADDR}
+    volumes:
+      # Mount the database file for persistence
+      - ./db.sqlite3:/app/db.sqlite3
+      # Mount logs directory
+      - ./logs:/app/logs
+      # Mount tmp directory
+      - ./tmp:/app/tmp
+      # Mount SSL certificates if needed
+      - ./ssl:/app/ssl
+    networks:
+      - fastcp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8899/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  fastcp-network:
+    driver: bridge

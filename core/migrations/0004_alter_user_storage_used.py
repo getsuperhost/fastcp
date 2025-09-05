@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0003_user_storage_used'),
+        ("core", "0003_user_storage_used"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='storage_used',
+            model_name="user",
+            name="storage_used",
             field=models.FloatField(default=0),
         ),
     ]

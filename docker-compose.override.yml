@@ -1,0 +1,47 @@
+services:
+  fastcp:
+    # Override command for development with auto-reload
+    command: python manage.py runserver 0.0.0.0:8899 --noreload
+    # Mount source code for hot reloading
+    volumes:
+      - .:/app
+      - /app/node_modules  # Don't override node_modules
+    # Override environment for development
+    environment:
+      - IS_DEBUG=1
+      - DJANGO_SETTINGS_MODULE=fastcp.settings
+      - SECRET_KEY=django-insecure-dev-key-change-in-production
+      - LOG_LEVEL=DEBUG
+      - DATABASE_URL=mysql://root:password@db:3306/fastcp
+    # Development-specific health check
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "check"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Enable database service for development
+  db:
+    image: mariadb:11.8
+    environment:
+      MYSQL_DATABASE: fastcp
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: fastcp
+      MYSQL_PASSWORD: password
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./backups:/backups
+    ports:
+      - "3306:3306"
+    networks:
+      - fastcp-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mariadb_data:
+    driver: local

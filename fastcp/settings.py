@@ -10,9 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
-import os
+# Database URL support
+try:
+    import dj_database_url
+except ImportError:
+    dj_database_url = None
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,149 +27,187 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('FASTCP_APP_SECRET', 'django-insecure-swm^3n$0#i^x3uuh3hy&_h(%ud$a6qfo6#tnukvxmyem7j3x8=')
+SECRET_KEY = os.environ.get(
+    "FASTCP_APP_SECRET",
+    "django-insecure-swm^3n$0#i^x3uuh3hy&_h(%ud$a6qfo6#tnukvxmyem7j3x8="
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('IS_DEBUG') is not None
+DEBUG = os.environ.get("IS_DEBUG") is not None
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': 'error.log',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": "error.log",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "ERROR",
+            "propagate": True,
         },
     },
 }
 
-# As the IP of the server may change, we cannot reliably whitelist any hosts. So
-# allowing all hosts is fine and secure as we are not going to rely on the host
-# header for any purpose.
-ALLOWED_HOSTS = ['*']
+# As the IP of the server may change, we cannot reliably whitelist any
+# hosts. So we allow all hosts.
+ALLOWED_HOSTS = ["*"]
 
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated"
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication'
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication"
     ],
-    'DEFAULT_PAGINATION_CLASS': 'api.pagination.FastcpPagination',
-    'PAGE_SIZE': 10,
-    'DATETIME_FORMAT': '%b %d, %Y %H:%M:%S',
+    "DEFAULT_PAGINATION_CLASS": "api.pagination.FastcpPagination",
+    "PAGE_SIZE": 10,
+    "DATETIME_FORMAT": "%b %d, %Y %H:%M:%S",
 }
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'rest_framework',
-    'django_cron',
-    'api',
-    'core'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",
+    "rest_framework",
+    # 'django_cron',  # Disabled due to compatibility issues with Django 5.x
+    "api",
+    "core",
 ]
 
-CRON_CLASSES = [
-    'core.crons.ProcessSsls'
-]
+CRON_CLASSES = ["core.crons.ProcessSsls"]
 DJANGO_CRON_DELETE_LOGS_OLDER_THAN = 1
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 if DEBUG:
     INSTALLED_APPS += [
-        'whitenoise.runserver_nostatic',
+        "whitenoise.runserver_nostatic",
     ]
 else:
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
-ROOT_URLCONF = 'fastcp.urls'
+ROOT_URLCONF = "fastcp.urls"
 
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'core.context.general_settings'
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": ["templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "core.context.general_settings",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'fastcp.wsgi.application'
+WSGI_APPLICATION = "fastcp.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Check for DATABASE_URL environment variable for PostgreSQL
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Use PostgreSQL configuration
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
+        }
+    except ImportError:
+        # Manual PostgreSQL configuration if dj_database_url not available
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": os.environ.get('DB_NAME', 'fastcp'),
+                "USER": os.environ.get('DB_USER', 'postgres'),
+                "PASSWORD": os.environ.get('DB_PASSWORD', 'password'),
+                "HOST": os.environ.get('DB_HOST', 'localhost'),
+                "PORT": os.environ.get('DB_PORT', '5432'),
+            }
+        }
+else:
+    # Default SQLite configuration
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+            "OPTIONS": {
+                "timeout": 20,
+            },
+        }
     }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation."
+                "UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation."
+                "MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation."
+                "CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation."
+                "NumericPasswordValidator",
     },
 ]
 
-AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = "core.User"
+
+# Custom authentication backend for SSH password validation
+AUTHENTICATION_BACKENDS = [
+    "core.auth_backends.FastcpAuthBackend",
+]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -176,28 +219,44 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'core.storage.WhiteNoiseStaticFilesStorage'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "core.storage.WhiteNoiseStaticFilesStorage"
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # FastCP's added settings
-FASTCP_SITE_NAME = 'FastCP'
-FASTCP_SITE_URL = 'https://fastcp.org'
-LOGIN_URL = 'core:login'
-LOGIN_REDIRECT_URL = 'spa'
-FILE_MANAGER_ROOT = os.environ.get('FILE_MANAGER_ROOT', '/srv/users')
-PHP_INSTALL_PATH = os.environ.get('PHP_INSTALL_PATH', '/etc/php')
-NGINX_BASE_DIR = os.environ.get('NGINX_BASE_DIR', '/etc/nginx')
-NGINX_VHOSTS_ROOT = os.environ.get('NGINX_VHOSTS_ROOT', '/etc/nginx/vhosts.d')
-APACHE_VHOST_ROOT = os.environ.get('APACHE_VHOST_ROOT', '/etc/apache2/vhosts.d')
-FASTCP_VERSION = os.environ.get('FASTCP_VERSION', '1.0.1')
-LETSENCRYPT_IS_STAGING = os.environ.get('LETSENCRYPT_IS_STAGING') is not None
-SERVER_IP_ADDR = os.environ.get('SERVER_IP_ADDR', 'N/A')
-FASTCP_SQL_PASSWORD = os.environ.get('FASTCP_SQL_PASSWORD')
-FASTCP_SQL_USER = os.environ.get('FASTCP_SQL_USER')
-FASTCP_PHPMYADMIN_PATH = os.environ.get('FASTCP_PHPMYADMIN_PATH', '/var/fastcp/phpmyadmin')
+FASTCP_SITE_NAME = "FastCP"
+FASTCP_SITE_URL = "https://fastcp.org"
+LOGIN_URL = "core:login"
+LOGIN_REDIRECT_URL = "spa"
+FILE_MANAGER_ROOT = os.environ.get("FILE_MANAGER_ROOT", "/srv/users")
+PHP_INSTALL_PATH = os.environ.get("PHP_INSTALL_PATH", "/etc/php")
+NGINX_BASE_DIR = os.environ.get("NGINX_BASE_DIR", "/etc/nginx")
+NGINX_VHOSTS_ROOT = os.environ.get(
+    "NGINX_VHOSTS_ROOT", "/etc/nginx/vhosts.d"
+)
+APACHE_VHOST_ROOT = os.environ.get(
+    "APACHE_VHOST_ROOT", "/etc/apache2/vhosts.d"
+)
+FASTCP_VERSION = os.environ.get("FASTCP_VERSION", "1.1.0")
+LETSENCRYPT_IS_STAGING = os.environ.get("LETSENCRYPT_IS_STAGING") is not None
+SERVER_IP_ADDR = os.environ.get("SERVER_IP_ADDR", "N/A")
+FASTCP_SQL_PASSWORD = os.environ.get("FASTCP_SQL_PASSWORD")
+FASTCP_SQL_USER = os.environ.get("FASTCP_SQL_USER")
+FASTCP_PHPMYADMIN_PATH = os.environ.get(
+    "FASTCP_PHPMYADMIN_PATH", "/var/fastcp/phpmyadmin"
+)
+
+# Django 5.x compatibility settings
+CSRF_TRUSTED_ORIGINS = []
+if SERVER_IP_ADDR != "N/A":
+    CSRF_TRUSTED_ORIGINS.append(f"http://{SERVER_IP_ADDR}")
+    CSRF_TRUSTED_ORIGINS.append(f"https://{SERVER_IP_ADDR}")
+
+# Use traditional stable authentication cookie naming
+SESSION_COOKIE_NAME = "sessionid"
+CSRF_COOKIE_NAME = "csrftoken"
