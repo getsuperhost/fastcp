@@ -12,7 +12,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        image: mariadb:11.8
         env:
           MYSQL_ROOT_PASSWORD: test
           MYSQL_DATABASE: test_fastcp
@@ -20,7 +20,7 @@ jobs:
           MYSQL_PASSWORD: test
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - uses: actions/checkout@v4
