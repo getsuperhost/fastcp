@@ -31,7 +31,10 @@ class UploadFileView(APIView):
         """Handle file upload"""
         s = serializers.FileUploadSerializer(data=request.data)
         if not s.is_valid():
-            return Response(s.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(
+                s.errors,
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
 
         if FileUploadService(request).upload_file(s.validated_data):
             return Response(
@@ -60,7 +63,10 @@ class RemoteUpload(APIView):
         """Handle file upload"""
         s = serializers.RemoteUploadSerializer(data=request.data)
         if not s.is_valid():
-            return Response(s.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(
+                s.errors,
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
 
         if FileUploadService(request).remote_upload(s.validated_data):
             return Response({"message": "File has been successfully fetched."})
