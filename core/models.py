@@ -29,7 +29,12 @@ class FastcpUserManager(BaseUserManager):
         We are overriding this method because the original method requires
         the email address. But we aren't going to have a field for user email.
         """
-        return self._create_user(username=username, is_staff=True, is_superuser=True, is_active=True)
+        return self._create_user(
+            username=username,
+            is_staff=True,
+            is_superuser=True,
+            is_active=True
+        )
 
 
 class User(AbstractUser):
@@ -107,7 +112,11 @@ for v in php_versions:
 class Website(models.Model):
     """Website model holds the websites owned by users."""
 
-    user = models.ForeignKey(User, related_name="websites", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        related_name="websites",
+        on_delete=models.CASCADE
+    )
     label = models.CharField(max_length=30, unique=True)
     has_ssl = models.BooleanField(default=False)
     slug = models.SlugField(max_length=50, unique=True, null=True, blank=True)
@@ -135,7 +144,12 @@ class Website(models.Model):
     @property
     def metadata(self) -> dict:
         """Returns the meta data for the website"""
-        base_path = os.path.join(settings.FILE_MANAGER_ROOT, self.user.username, "apps", self.slug)
+        base_path = os.path.join(
+            settings.FILE_MANAGER_ROOT,
+            self.user.username,
+            "apps",
+            self.slug
+        )
         return {
             "path": base_path,
             "pub_path": os.path.join(base_path, "public"),
@@ -151,7 +165,11 @@ class Website(models.Model):
 class Domain(models.Model):
     """Domain model holds the domains associated to a website."""
 
-    website = models.ForeignKey(Website, related_name="domains", on_delete=models.CASCADE)
+    website = models.ForeignKey(
+        Website,
+        related_name="domains",
+        on_delete=models.CASCADE
+    )
     domain = models.CharField(max_length=100, unique=True)
     ssl = models.BooleanField(default=False)
     resolving_ip = models.GenericIPAddressField(null=True, blank=True)
@@ -166,7 +184,11 @@ class Domain(models.Model):
 class Database(models.Model):
     """Database model holds the MySQL databases."""
 
-    user = models.ForeignKey(User, related_name="databases", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        related_name="databases",
+        on_delete=models.CASCADE
+    )
     name = models.SlugField(max_length=50, unique=True)
     username = models.SlugField(max_length=50, unique=True)
     created = models.DateTimeField(auto_now_add=True)

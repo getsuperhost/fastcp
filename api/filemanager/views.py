@@ -20,7 +20,8 @@ from .services.update_permissions import UpdatePermissionService
 class UploadFileView(APIView):
     """Upload Files.
 
-    This view allows the users to upload files using file manager or using HTTP API.
+    This view allows the users to upload files using file manager or using
+    HTTP API.
     """
 
     http_method_names = ["post"]
@@ -33,10 +34,15 @@ class UploadFileView(APIView):
             return Response(s.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         if FileUploadService(request).upload_file(s.validated_data):
-            return Response({"message": "File has been successfully uploaded."})
+            return Response(
+                {"message": "File has been successfully uploaded."}
+            )
         else:
             return Response(
-                {"error": "File cannot be uploaded to the specified location."},
+                {
+                    "error": "File cannot be uploaded to the specified "
+                             "location."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -44,7 +50,8 @@ class UploadFileView(APIView):
 class RemoteUpload(APIView):
     """Remote Upload.
 
-    This view allows the users to fetch files from remote URLs. The remote URLs must host a public file.
+    This view allows the users to fetch files from remote URLs. The remote
+    URLs must host a public file.
     """
 
     http_method_names = ["post"]
@@ -59,7 +66,10 @@ class RemoteUpload(APIView):
             return Response({"message": "File has been successfully fetched."})
         else:
             return Response(
-                {"error": "File cannot be fetched to the specified location."},
+                {
+                    "error": "File cannot be fetched to the specified "
+                             "location."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -82,7 +92,9 @@ class MoveItemsView(APIView):
             return Response({"message": "Items have been relocated successfully."})
         else:
             return Response(
-                {"error": "An error occurred while moving the items."},
+                {
+                    "error": "An error occurred while moving the items."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -90,7 +102,8 @@ class MoveItemsView(APIView):
 class FileObjectView(APIView):
     """File Object View.
 
-    This view is responsible for returning a file's content as well as it creates an item and updates the contents of the item on the disk.
+    This view is responsible for returning a file's content as well as it
+    creates an item and updates the contents of the item on the disk.
     """
 
     http_method_names = ["get", "put", "post"]
@@ -98,7 +111,8 @@ class FileObjectView(APIView):
     def get(self, request, *args, **kwargs):
         """Read a file.
 
-        This method attempts to read the contents of a file from the disk and returns the content.
+        This method attempts to read the contents of a file from the disk
+        and returns the content.
         """
         s = serializers.ReadFileSerializer(data=request.GET)
         if not s.is_valid():
@@ -108,13 +122,19 @@ class FileObjectView(APIView):
         if content is not None:
             return Response({"content": content})
         else:
-            return Response({"content": "File not available for editing."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "content": "File not available for editing."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     def post(self, request, *args, **kwargs):
         """Create Item
 
-        This function attempts to create a new file or a directory in the root of selected dir. If no file ID is passed,
-        then the root of file manager is selected as the root directory to create the new item in.
+        This function attempts to create a new file or a directory in the
+        root of selected dir. If no file ID is passed, then the root of file
+        manager is selected as the root directory to create the new item in.
         """
         s = serializers.ItemCreateSerializer(data=request.POST)
         if not s.is_valid():
@@ -123,7 +143,12 @@ class FileObjectView(APIView):
         if CreateItemService(request).create_item(s.validated_data):
             return Response({"message": "New item has been created successfully."})
         else:
-            return Response({"error": "New item cannot be created with this name."}, status=400)
+            return Response(
+                {
+                    "error": "New item cannot be created with this name."
+                },
+                status=400
+            )
 
     def put(self, request, *args, **kwargs):
         """Update File
@@ -137,14 +162,19 @@ class FileObjectView(APIView):
         if UpdateFileService(request).update_file(s.validated_data):
             return Response({"message": "File has been updated."})
         else:
-            return Response({"content": "File cannot be updated."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "content": "File cannot be updated."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class GenerateArchiveView(APIView):
     """Generate Archive
 
-    This view generate a ZIP file for the provided file paths in the provided root path or the file manager root if root
-    path was not supplied.
+    This view generate a ZIP file for the provided file paths in the provided
+    root path or the file manager root if root path was not supplied.
     """
 
     http_method_names = ["post"]
@@ -157,15 +187,21 @@ class GenerateArchiveView(APIView):
         if GenerateArchiveService(request).generate_archive(s.validated_data):
             return Response({"message": "Archive has been successfully generated."})
         else:
-            return Response({"error": "Archive cannot be generated."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "error": "Archive cannot be generated."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class ExtractArchiveView(APIView):
     """Extract Archive
 
-    This function attempts to extract the archive in the current directory. If the archive needs to
-    be extracted somewhere else, that's not possible yet. In order to achive that, users will first
-    need to move the archive file to the desired path and then they will have extract it there.
+    This function attempts to extract the archive in the current directory.
+    If the archive needs to be extracted somewhere else, that's not possible
+    yet. In order to achieve that, users will first need to move the archive
+    file to the desired path and then they will have extract it there.
     """
 
     http_method_names = ["post"]
@@ -178,14 +214,19 @@ class ExtractArchiveView(APIView):
         if ExtractArchiveService(request).extract_archive(s.validated_data):
             return Response({"message": "The archive has been extracted successfully."})
         else:
-            return Response({"error": "Archive data cannot be extracted."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "error": "Archive data cannot be extracted."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class DeleteItemsView(APIView):
     """Delete Items.
 
-    Delete selected items from the the disk. This action irreversible and this function permanently
-    deletes the selected files.
+    Delete selected items from the disk. This action irreversible and this
+    function permanently deletes the selected files.
     """
 
     http_method_names = ["post"]
@@ -198,7 +239,12 @@ class DeleteItemsView(APIView):
         if DeleteItemsService(request).delete_items(s.validated_data):
             return Response({"message": "The selected items have been successfully deleted."})
         else:
-            return Response({"error": "Selected files cannot be deleted."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "error": "Selected files cannot be deleted."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class FileListView(APIView):
@@ -240,7 +286,12 @@ class RenameItem(APIView):
         if RenameItemService(request).rename_item(s.validated_data):
             return Response({"status": True})
         else:
-            return Response({"message": "The item cannot be renamed."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "message": "The item cannot be renamed."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class UpdatePermissions(APIView):
