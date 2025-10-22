@@ -47,7 +47,7 @@ class DomainAddView(APIView):
         signals.domains_updated.send(sender=website)
         
         return Response({
-            'message': 'The domain has been deleted successfully.'
+            'message': 'The domain has been added successfully.'
         })
 
 class RefreshSsl(APIView):
