@@ -77,15 +77,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'rest_framework',
-    'django_cron',
+    # 'django_cron',  # Temporarily disabled due to Django 5.2 compatibility
     'api',
     'core'
 ]
 
-CRON_CLASSES = [
-    'core.crons.ProcessSsls'
-]
-DJANGO_CRON_DELETE_LOGS_OLDER_THAN = 1
+# CRON_CLASSES = [
+#     'core.crons.ProcessSsls'
+# ]
+# DJANGO_CRON_DELETE_LOGS_OLDER_THAN = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -130,12 +130,24 @@ WSGI_APPLICATION = 'fastcp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.environ.get('FASTCP_SQL_USER'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'fastcp',
+            'USER': os.environ.get('FASTCP_SQL_USER'),
+            'PASSWORD': os.environ.get('FASTCP_SQL_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST', 'db'),
+            'PORT': '3306',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation

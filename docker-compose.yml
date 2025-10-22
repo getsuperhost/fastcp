@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fastcp
+      MYSQL_USER: fastcp
+      MYSQL_PASSWORD: fastcppassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build: .
+    restart: always
+    environment:
+      - FASTCP_SQL_USER=fastcp
+      - FASTCP_SQL_PASSWORD=fastcppassword
+      - IS_DEBUG=1
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /app/staticfiles
+
+volumes:
+  mysql_data:

@@ -1,15 +1,14 @@
 from django import forms
 from core.models import User
-from .utils.auth import do_login
+from django.contrib.auth import authenticate
 
 
 class LoginForm(forms.Form):
     """Custom login form.
     
-    We are not going to use the default login form of Django, because
-    we will be authenticating the user sessions using SSH login info.
+    For development, we use Django's authentication system.
     """
-    username = forms.CharField(label='SSH username')
+    username = forms.CharField(label='Username')
     password = forms.CharField(widget=forms.PasswordInput())
     
     def clean(self):
@@ -18,11 +17,9 @@ class LoginForm(forms.Form):
         username = data.get('username')
         password = data.get('password')
         if username and password:
-            user = User.objects.filter(username=username).first()
+            user = authenticate(username=username, password=password)
             if user:
-                login = do_login(username, password)
-                if not login:
-                    self.add_error('username', 'The provided login details are invalid.')
+                self.user = user
             else:
                 self.add_error('username', 'The provided login details are invalid.')
         return data

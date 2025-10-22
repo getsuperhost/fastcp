@@ -37,11 +37,11 @@ class FastcpUserManager(BaseUserManager):
 class User(AbstractUser):
     """User model.
     
-    We are not relying on password of the user stored in the database nor we need their email. Authentication
-    relies on the validation of the unix passwords.
+    For development purposes, we use Django's password authentication.
+    In production, authentication relies on Unix passwords.
     """
-    password = None
-    email = None
+    # password = None  # Commented out for development
+    # email = None     # Commented out for development
     uid = models.IntegerField(null=True, blank=True)
     username = models.CharField(max_length=30, unique=True)
     
