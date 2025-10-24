@@ -21,7 +21,7 @@ install_wp = django.dispatch.Signal()
 
 def update_php_handler(sender, **kwargs):
     """Update PHP conf.
-    
+
     Update the PHP-FPM pool configuration for the specified website.
     """
     filesystem.delete_fpm_conf(sender)
@@ -46,15 +46,15 @@ install_wp.connect(install_wp_handler, dispatch_uid='install-wp')
 
 def domains_updated_handler(sender, **kwargs):
     """Update domains.
-    
+
     Update the vhost conf files once a website's domains are updated.
     """
     # Create NGINX vhost
     filesystem.create_nginx_vhost(sender)
-    
+
     if not kwargs.get('only_nginx'):
         filesystem.create_apache_vhost(sender)
-    
+
 domains_updated.connect(domains_updated_handler, dispatch_uid='domains-updated')
 
 @receiver(post_save, sender=Website)
@@ -68,7 +68,7 @@ def setup_website(sender, instance=None, created=False, **kwargs):
 def delete_website(sender, instance=None, **kwargs):
     """Executes when a website is deleted. We will clean the data then."""
     fcpsys.delete_website(instance)
-    
+
 
 def create_user_handler(sender, **kwargs):
     """Executes when a user is created at first. We will set the user is_active to True here as well
@@ -78,7 +78,7 @@ def create_user_handler(sender, **kwargs):
     if not sender.is_superuser:
         fcpsys.setup_user(sender, password=kwargs.get('password'))
 create_user.connect(create_user_handler, dispatch_uid='create-user')
-    
+
 
 def restart_services_handler(sender=None, **kwargs):
     """Restarts services. Expects the service names as a comma-separated string."""

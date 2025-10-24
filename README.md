@@ -1,9 +1,11 @@
+# FastCP
+
 ![fastcp-control-panel](https://fastcp.org/images/prototype.png "FastCP Control Panel")
 
-# FastCP
 FastCP is an open source control panel for Ubuntu servers. You can use FastCP to deploy and manage multiple PHP / WordPress websites on a single server. ServerPilot's simplicity and powerful features are the inspiration behind FastCP's development. Moreover, I have developed this control panel as the final project of my CS50 online course.
 
 ## Features
+
 * Host multiple websites on a single server
 * Create multiple SSH users
 * Sub users can manage their websites
@@ -15,11 +17,13 @@ FastCP is an open source control panel for Ubuntu servers. You can use FastCP to
 * Auto SSLs from Let's Encrypt with auto renewal
 
 ## Requirements
+
 FastCP only supports the latest LTS versions of Ubuntu starting 20.04. Please beware although it will run on non-LTS releases too, but we have imposed a strict requirement of LTS releases only. At the moment, FastCP supports the following Ubuntu releases:
 
 * Ubuntu 20.04 LTS
 
 ## How to Install?
+
 You can visit [https://fastcp.org](https://fastcp.org) to install FastCP on your server or you can execute the following command as root user on your Ubuntu server:
 
 ```bash
@@ -27,7 +31,9 @@ cd /home && sudo curl -o latest https://fastcp.org/latest.sh && sudo bash latest
 ```
 
 ## How to Update?
+
 To update FastCP to latest version, execute this command as root user:
+
 ```bash
 cd ~/ && sudo fastcp-updater
 ```
@@ -35,12 +41,14 @@ cd ~/ && sudo fastcp-updater
 ## Development Setup
 
 ### Prerequisites
+
 * Python 3.12+ (required for Django 5.2.7+)
 * Node.js 22+
 * Docker and Docker Compose
 * Git
 
 ### Security Features
+
 FastCP implements several security best practices:
 
 * **Non-root container execution** - Docker containers run as a dedicated non-root user
@@ -134,14 +142,8 @@ FastCP includes a production-ready Dockerfile with security hardening:
 # Build the Docker image
 docker build -t fastcp .
 
-# Run with Docker Compose (includes database)
-docker-compose up -d
-
-# Or run standalone
-docker run -p 8877:8877 --env-file .env fastcp
-```
-
 **Security Features in Docker:**
+
 * Non-root user execution (`USER app`)
 * Minimal attack surface with Python 3.12-slim base
 * Proper file permissions and ownership

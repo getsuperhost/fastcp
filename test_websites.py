@@ -3,11 +3,11 @@
 Website Management API Testing Script for FastCP
 """
 import os
-import sys
-import django
-from django.test import Client
-from django.contrib.auth import get_user_model
 import time
+
+import django
+from django.contrib.auth import get_user_model
+from django.test import Client
 
 # Setup Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fastcp.settings')

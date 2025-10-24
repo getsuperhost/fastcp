@@ -1,7 +1,7 @@
+import unittest
 from django.test import TestCase
 from .models import Website, User
 from .utils.system import setup_wordpress
-import unittest
 
 # Create your tests here.
 class TestWordPressDeploy(TestCase):

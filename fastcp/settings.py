@@ -22,10 +22,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('FASTCP_APP_SECRET', 'django-insecure-swm^3n$0#i^x3uuh3hy&_h(%ud$a6qfo6#tnukvxmyem7j3x8=')
+SECRET_KEY = os.environ.get(
+    'FASTCP_APP_SECRET',
+    'django-insecure-swm^3n$0#i^x3uuh3hy&_h(%ud$a6qfo6#tnukvxmyem7j3x8='
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('IS_DEBUG') is not None
+
+# Production Security Settings
+if not DEBUG:
+    # HTTPS and Security Headers
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Secure Cookies
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = True
+
+    # Additional Security
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 LOGGING = {
     'version': 1,

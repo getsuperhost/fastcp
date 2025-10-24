@@ -22,7 +22,8 @@ def do_login(user, password):
         if enc_pwd in ['LK', '*']:
             # Account is locked
             pass
-        if enc_pwd == '!!':
+        if enc_pwd == '!!':  # nosec B105 - This is a standard shadow file
+            # indicator for expired passwords, not a hardcoded password
             # Password has expired
             pass
         if crypt.crypt(password, enc_pwd) == enc_pwd:

@@ -208,5 +208,6 @@ class FastcpAcme(object):
                 'full_chain': order_result.fullchain_pem,
                 'priv_key': self.priv_key
             }
-        except:
+        except Exception as e:
+            print(f"Error during SSL certificate request: {e}")
             return False

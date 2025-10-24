@@ -3,10 +3,10 @@
 API Testing Script for FastCP
 """
 import os
-import sys
+
 import django
-from django.test import Client
 from django.contrib.auth import get_user_model
+from django.test import Client
 
 # Set environment variables for testing
 os.environ.setdefault('FILE_MANAGER_ROOT', '/tmp/fastcp_users')
@@ -45,7 +45,8 @@ def test_api_endpoints():
         ('/api/ssh-users/', 'Users API'),
         ('/api/databases/', 'Databases API'),
         ('/api/account/', 'Account API'),
-        ('/api/file-manager/files/?path=/tmp/fastcp_users/james', 'File Manager API'),
+        ('/api/file-manager/files/?path=/tmp/fastcp_users/james',
+         'File Manager API'),
     ]
 
     for endpoint, name in endpoints:

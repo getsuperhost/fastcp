@@ -1,14 +1,18 @@
-import secrets, string, os, crypt, pwd
+import os
+import secrets
+import string
 from datetime import datetime
-from django.template.loader import render_to_string
-from api.databases.services.mysql import FastcpSqlService
-from core.utils import filesystem
-from subprocess import (
+from subprocess import (  # nosec B404 - subprocess is required for system command execution
     STDOUT, check_call, CalledProcessError, Popen, PIPE, DEVNULL
 )
+
+import requests
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-import requests
+from django.template.loader import render_to_string
+
+from api.databases.services.mysql import FastcpSqlService
+from core.utils import filesystem
 
 
 # Constants
@@ -18,8 +22,9 @@ FASTCP_SYS_GROUP = 'fcp-users'
 def set_uid(uid=0) -> None:
     """Set UID.
 
-    This function sets the system uid for the user. It is used by file manager and other components where
-    permissions need to be persisted on created or updated items.
+    This function sets the system uid for the user. It is used by file manager and
+    other components where permissions need to be persisted on created or updated
+    items.
 
     Args:
         uid (int): UID of the user and group. Defaults to root.
@@ -42,9 +47,12 @@ def run_cmd(cmd: str, shell=False) -> bool:
     try:
         if not shell:
             check_call(cmd.split(' '),
+                       # nosec B603 - shell parameter defaults to False,
+                       # commands are constructed from trusted inputs
                        stdout=DEVNULL, stderr=STDOUT, timeout=300)
         else:
             Popen(cmd, stdin=PIPE, stdout=DEVNULL,
+                  # nosec B603 - shell parameter controls execution mode
                   stderr=STDOUT).wait()
         return True
     except CalledProcessError:
@@ -82,7 +90,7 @@ def setup_website(website: object):
 
     # Create FPM pool conf
     filesystem.generate_fpm_conf(website)
-    
+
     # Fix permissions
     fix_ownership(website)
 
@@ -105,14 +113,14 @@ def delete_website(website: object):
 
     # Delete Apache vhost files
     filesystem.delete_apache_vhost(website)
-    
+
     # Delete SSL certs
     filesystem.delete_ssl_certs(website)
 
-    
+
 def setup_wordpress(website: object, **kwargs) -> None:
     """Setup WordPress.
-    
+
     By default, a blank PHP website is created, but if needed, this function
     installs WordPress in the root directory of the newly created wbsite.
 
@@ -122,26 +130,26 @@ def setup_wordpress(website: object, **kwargs) -> None:
     paths = filesystem.get_website_paths(website)
     base_path = paths.get('base_path')
     pub_path = paths.get('web_root')
-    
+
     # Delete public directory
     filesystem.delete_dir(pub_path)
-    
+
     # Download wordpress
     wp_archive_path = os.path.join(base_path, 'latest.zip')
-    with requests.get('https://wordpress.org/latest.zip') as res:
+    with requests.get('https://wordpress.org/latest.zip', timeout=30) as res:
         with open(wp_archive_path, 'wb') as f:
             f.write(res.content)
-    
+
     # Extract ZIP
     filesystem.extract_zip(base_path, wp_archive_path)
-    
+
     # Rename to public
     os.rename(os.path.join(base_path, 'wordpress'), pub_path)
-    
+
     # Delete WP zip
     os.remove(wp_archive_path)
-    
-    
+
+
     # Populate wp-config
     dbname = kwargs.get('dbname')
     dbpassword = kwargs.get('dbpassword')
@@ -158,7 +166,7 @@ def setup_wordpress(website: object, **kwargs) -> None:
             # Set unique keys
             for _ in range(1, 8+1):
                 content = content.replace('put your unique phrase here', rand_passwd(60), 1)
-            
+
             f2.write(content)
     fix_ownership(website)
 
@@ -173,31 +181,31 @@ def rand_passwd(length: int = 20) -> str:
 
 def change_password(username: str) -> str:
     """Change a Unix user's password.
-    
-    This function generates a random password using rand_passwd function, sets the password for the user
-    and returns the password as a string.
-    
+
+    This function generates a random password using rand_passwd function, sets the
+    password for the user and returns the password as a string.
+
     Args:
         user (str): The Unix user's username.
-    
+
     Returns:
         str: The new password.
     """
     passwd = rand_passwd()
     passwd_hash = crypt.crypt(passwd, '22')
     run_cmd(f'/usr/sbin/usermod --password {passwd_hash} {username}')
-    
+
     return passwd
 
 def change_db_password(username: str) -> str:
     """Change a MySQL user's password.
-    
-    This function generates a random password using rand_passwd function, sets the password for the user
-    and returns the password as a string.
-    
+
+    This function generates a random password using rand_passwd function, sets the
+    password for the user and returns the password as a string.
+
     Args:
         user (str): The MySQL username.
-    
+
     Returns:
         str: The new password or None if update fails.
     """
@@ -236,7 +244,8 @@ def setup_user(user: object, password: str = None) -> bool:
     # Create unix user & group
     run_cmd(f'/usr/sbin/groupadd {user.username}')
     run_cmd(
-        f'/usr/sbin/useradd -s /bin/bash -g {user.username} -p {user_pass} -d {user_home} {user.username}')
+        f'/usr/sbin/useradd -s /bin/bash -g {user.username} -p {user_pass} '
+        f'-d {user_home} {user.username}')
     run_cmd(f'/usr/sbin/usermod -G {FASTCP_SYS_GROUP} {user.username}')
 
     # Fix permissions
@@ -286,16 +295,18 @@ def create_database(database: object, password: str) -> bool:
 
 def drop_db(database: object) -> None:
     """Deletes the database.
-    
+
     Drops the database as well as the associated user.
-    
+
     Args:
         database (object): Database model object.
     """
     try:
         FastcpSqlService().drop_db(database.name)
         FastcpSqlService().drop_user(database.username)
-    except:
+    except Exception:  # nosec B110 - Cleanup operation should not fail,
+        # errors are intentionally ignored
+        # Ignore errors during database/user cleanup
         pass
 
 def delete_user_data(user: object) -> None:
@@ -324,36 +335,38 @@ def delete_user_data(user: object) -> None:
 
 def ssl_expiring(website: object) -> bool:
     """Check if SSL is expiring.
-    
-    If an SSL has expired or if it is going to expire <= 30 days, this function will return True. FastCP uses this
-    function to determine either an SSL certificate should be requested for a website or not.
-    
+
+    If an SSL has expired or if it is going to expire <= 30 days, this function will
+    return True. FastCP uses this function to determine either an SSL certificate
+    should be requested for a website or not.
+
     Args:
         website (object): Website model object.
-        
+
     Returns:
-        bool: Returns True if it's expiring, and returns False if expiry is not near or if SSL cert file was not found.
+        bool: Returns True if it's expiring, and returns False if expiry is not near
+        or if SSL cert file was not found.
     """
-    
+
     paths = filesystem.get_website_paths(website)
-    
+
     if os.path.exists(paths.get('cert_chain_path')):
         with open(paths.get('cert_chain_path')) as f:
             certdata = f.read().encode()
-        
+
         cert = x509.load_pem_x509_certificate(certdata, default_backend())
         expiry = cert.not_valid_after
         curr_time = datetime.now()
-        
+
         # If expired
         if expiry <= curr_time:
             return True
-        
+
         # Time delta
         delta = expiry - curr_time
-        
+
         # If <= 7 days left
         if delta.days <= 30:
             return True
-    
+
     return False

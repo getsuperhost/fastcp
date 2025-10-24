@@ -1,18 +1,20 @@
+import os
+
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.template.defaultfilters import slugify
-from django.conf import settings
+
 from api.websites.services.get_php_versions import PhpVersionListService
-from django.contrib.auth.models import AbstractUser, BaseUserManager
-import os
 
 
 class FastcpUserManager(BaseUserManager):
     """FastCP User Manager.
-    
-    This user manager allows us to make customizations to create_superuser method to make the auth flow
-    compatible to FastCP's requirements.
+
+    This user manager allows us to make customizations to create_superuser
+    method to make the auth flow compatible to FastCP's requirements.
     """
-    
+
     def _create_user(self, **extra_fields):
         """
         Creates a a user for the provided username.
@@ -20,12 +22,12 @@ class FastcpUserManager(BaseUserManager):
         user = self.model(**extra_fields)
         user.save()
         return user
-    
+
     def create_superuser(self, username, **kwargs):
         """Create superuser.
-        
-        We are overriding this method because the original method requires the email address. But we aren't
-        going to have a field for user email.
+
+        We are overriding this method because the original method requires the
+        email address. But we aren't going to have a field for user email.
         """
         return self._create_user(
             username=username,
@@ -36,7 +38,7 @@ class FastcpUserManager(BaseUserManager):
 
 class User(AbstractUser):
     """User model.
-    
+
     For development purposes, we use Django's password authentication.
     In production, authentication relies on Unix passwords.
     """
@@ -44,23 +46,26 @@ class User(AbstractUser):
     # email = None     # Commented out for development
     uid = models.IntegerField(null=True, blank=True)
     username = models.CharField(max_length=30, unique=True)
-    
+
     # FastCP resource limits
-    max_dbs = models.IntegerField(default=10) # Max number of databases a user can create
-    max_sites = models.IntegerField(default=10) # Max number of websites a user can create
-    storage_used = models.FloatField(default=0) # Used storage in Bytes (1024 bytes == 1kb)
-    max_storage = models.FloatField(default=1024) # Max storage in Bytes a user can consume (1024 bytes == 1kb)
-    
+    # Max number of databases a user can create
+    max_dbs = models.IntegerField(default=10)
+    # Max number of websites a user can create
+    max_sites = models.IntegerField(default=10)
+    # Used storage in Bytes (1024 bytes == 1kb)
+    storage_used = models.FloatField(default=0)
+    # Max storage in Bytes a user can consume (1024 bytes == 1kb)
+    max_storage = models.FloatField(default=1024)
+
     # More customizations
     REQUIRED_FIELDS = []
     objects = FastcpUserManager()
-    
+
     @property
     def total_dbs(self):
         """Get the count of total databases owned by this user."""
         return self.databases.count()
 
-    
     @property
     def total_sites(self):
         """Get the count of total sites owned by this user."""
@@ -74,7 +79,7 @@ class Notification(models.Model):
     details = models.TextField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return self.title
 
@@ -84,7 +89,7 @@ php_versions = PhpVersionListService().get_php_versions()
 PHP_CHOICES = ()
 for v in php_versions:
     PHP_CHOICES += ((v, f'PHP {v}'),)
-    
+
 class Website(models.Model):
     """Website model holds the websites owned by users."""
     user = models.ForeignKey(User, related_name='websites', on_delete=models.CASCADE)
@@ -94,7 +99,7 @@ class Website(models.Model):
     php = models.CharField(choices=PHP_CHOICES, max_length=20)
     is_wp = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
-    
+
     def save(self, *args, **kwargs):
         """Always generate a slug on save."""
         if not self.slug:
@@ -108,10 +113,10 @@ class Website(models.Model):
                 i += 1
             self.slug = slug
         super(Website, self).save(*args, **kwargs)
-    
+
     def __str__(self):
         return self.label
-    
+
     @property
     def metadata(self) -> dict:
         """Returns the meta data for the website"""
@@ -122,7 +127,7 @@ class Website(models.Model):
             'user': self.user.username,
             'ip_addr': settings.SERVER_IP_ADDR
         }
-    
+
     def needs_ssl(self) -> bool:
         """Check either website needs SSL or not."""
         return self.domains.filter(ssl=False).count() > 0
@@ -136,7 +141,7 @@ class Domain(models.Model):
     ssl_error = models.TextField(null=True, blank=True)
     ssl_retries = models.IntegerField(default=0)
     ssl_attempted = models.DateTimeField(null=True, blank=True)
-    
+
     def __str__(self):
         return self.domain
 
@@ -146,6 +151,6 @@ class Database(models.Model):
     name = models.SlugField(max_length=50, unique=True)
     username = models.SlugField(max_length=50, unique=True)
     created = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return self.name

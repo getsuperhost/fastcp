@@ -34,7 +34,7 @@ class GenerateArchiveService(BaseService):
                 cpfs.create_zip(root_path, archive_name, selected=paths)
                 self.fix_ownership(root_path)
                 return True
-        except Exception as e:
-            pass
+        except (OSError, IOError, PermissionError, ValueError):
+            return False
         
         return False

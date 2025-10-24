@@ -1,0 +1,4 @@
+
+Name | Version | ID | Fix Versions
+--- | --- | --- | ---
+pip | 25.2 | GHSA-4xh5-x5gv-qwph | 

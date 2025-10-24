@@ -89,3 +89,6 @@ db.sqlite3
 node_modules
 
 .early.coverage
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

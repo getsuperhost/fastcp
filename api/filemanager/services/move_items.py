@@ -40,7 +40,7 @@ class MoveDataService(BaseService):
                                 copy_tree(p, dest_root)
                             else:
                                 shutil.copy2(p, dest_root)
-                    except Exception as e:
+                    except (OSError, IOError, PermissionError, shutil.Error):
                         errors = True
         
         

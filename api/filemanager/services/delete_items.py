@@ -33,11 +33,11 @@ class DeleteItemsService(BaseService):
                         if os.path.isdir(path):
                             try:
                                 shutil.rmtree(path)
-                            except:
-                                pass
+                            except (OSError, IOError, PermissionError):
+                                return False
                         if os.path.isfile(path):
                             os.remove(path)
                 
                 return True
-        except Exception as e:
-            pass
+        except (ValueError, AttributeError):
+            return False

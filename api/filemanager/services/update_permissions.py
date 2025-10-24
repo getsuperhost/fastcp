@@ -30,6 +30,6 @@ class UpdatePermissionService(BaseService):
                 run_cmd(f'/usr/bin/chmod {permissions} {path}')
                 self.fix_ownership(path)
                 return True
-            except Exception as e:
-                pass
+            except (OSError, IOError, PermissionError):
+                return False
         return False

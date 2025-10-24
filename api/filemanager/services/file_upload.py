@@ -52,7 +52,7 @@ class FileUploadService(BaseService):
         
         # Check if allowed
         if self.is_allowed(path, user):
-            with requests.get(remote_url, stream=True) as res:
+            with requests.get(remote_url, stream=True, timeout=30) as res:
                 # Check status code
                 if res.status_code == 200:
                     with open(dest_path, 'wb') as f:

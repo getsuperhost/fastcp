@@ -32,7 +32,7 @@ class RenameItemService(BaseService):
                 os.rename(old_path, new_path)
                 self.fix_ownership(new_path)
                 return True
-            except:
-                pass    
+            except (OSError, IOError, PermissionError):
+                return False    
         
         return False

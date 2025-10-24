@@ -3,11 +3,11 @@
 File Manager API Testing Script for FastCP
 """
 import os
-import sys
+
 import django
-from django.test import Client
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client
 
 # Set environment variables for testing
 os.environ.setdefault('FILE_MANAGER_ROOT', '/tmp/fastcp_users')

@@ -1,6 +1,6 @@
+from datetime import datetime
 import psutil
 from core.models import Website, Database
-from datetime import datetime
 
 
 MEMORY = psutil.virtual_memory()
