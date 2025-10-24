@@ -35,10 +35,19 @@ cd ~/ && sudo fastcp-updater
 ## Development Setup
 
 ### Prerequisites
-* Python 3.12+
+* Python 3.12+ (required for Django 5.2.7+)
 * Node.js 22+
 * Docker and Docker Compose
 * Git
+
+### Security Features
+FastCP implements several security best practices:
+
+* **Non-root container execution** - Docker containers run as a dedicated non-root user
+* **HTTPS-only external requests** - All external API calls use secure HTTPS connections
+* **Environment-based secrets** - Sensitive credentials are managed via environment variables
+* **Code quality analysis** - Integrated Codacy CLI with ESLint, Semgrep, Revive, and Lizard
+* **Security-hardened dependencies** - All Python packages are kept up-to-date with security patches
 
 ### Local Development Environment
 
@@ -98,6 +107,57 @@ cd ~/ && sudo fastcp-updater
 9. **Access the application:**
    * Open your browser and go to: <http://localhost:8877>
    * Login with the superuser credentials you created
+
+### Code Quality & Security Analysis
+
+FastCP uses Codacy CLI for automated code quality and security analysis:
+
+```bash
+# Install Codacy CLI
+bash .codacy/cli-install.sh
+
+# Run code analysis
+bash .codacy/cli.sh analyze --format summary
+
+# Run tests
+source venv/bin/activate
+python manage.py test --verbosity=2
+```
+
+The analysis excludes generated files and focuses on security vulnerabilities, code complexity, and quality issues.
+
+### Docker Build & Deployment
+
+FastCP includes a production-ready Dockerfile with security hardening:
+
+```bash
+# Build the Docker image
+docker build -t fastcp .
+
+# Run with Docker Compose (includes database)
+docker-compose up -d
+
+# Or run standalone
+docker run -p 8877:8877 --env-file .env fastcp
+```
+
+**Security Features in Docker:**
+* Non-root user execution (`USER app`)
+* Minimal attack surface with Python 3.12-slim base
+* Proper file permissions and ownership
+* HTTPS-only external communications
+
+### Configuration Files
+
+FastCP includes several configuration files for code quality and security:
+
+* `.codacy/codacy.yaml` - Codacy CLI configuration with tool selection and exclusions
+* `.pylintrc` - Python linting configuration excluding virtual environments and generated files
+* `.trivyignore` - Security scanning exclusions for configuration files
+* `.bandit` - Python security linting configuration
+* `.eslintrc.json` - JavaScript linting configuration
+
+These configurations ensure clean code analysis without false positives from generated or third-party files.
 
 ### Development Commands
 

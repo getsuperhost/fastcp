@@ -31,7 +31,7 @@ def test_api_endpoints():
         return
 
     # Login the user
-    login_success = client.login(username='james', password='admin123')
+    login_success = client.login(username='james', password=os.environ.get('TEST_USER_PASSWORD', 'testpass123'))
     if login_success:
         print("✓ Login successful")
     else:

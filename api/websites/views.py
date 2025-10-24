@@ -6,7 +6,6 @@ from core.models import Website
 from . import serializers
 from core.permissions import IsAdminOrOwner
 from rest_framework import permissions
-from django.db.models import Q
 from .services.get_php_versions import PhpVersionListService
 from core import signals
 from api.websites.services.ssl import FastcpSsl

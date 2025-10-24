@@ -58,7 +58,7 @@ class FastcpSsl(object):
         """
         
         try:
-            res = requests.get(f'http://{domain}{FCP_VERIFY_PATH}', timeout=5)
+            res = requests.get(f'https://{domain}{FCP_VERIFY_PATH}', timeout=5)
             if res.status_code == 200 and res.text.strip() == FCP_VERIFY_STR:
                 return True
         except Exception:
@@ -160,7 +160,7 @@ class FastcpSsl(object):
                         Domain.objects.filter(domain=dom).update(ssl=True)
                             
                 status = True
-        except Exception as e:
+        except Exception:
             pass
         finally:
             # Remove verification files

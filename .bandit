@@ -1,0 +1,7 @@
+[bandit]
+exclude_dirs = venv,node_modules,staticfiles,.codacy,.vscode
+skips = B101,B601,B108,B110
+
+[bandit.asserts]
+# Skip assert checks in test files
+skip = test_*.py

@@ -1,5 +1,5 @@
-# Use Python 3.9 slim image
-FROM python:3.9-slim
+# Use Python 3.12 slim image
+FROM python:3.12-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -40,9 +40,18 @@ RUN mkdir -p /etc/php/8.1 /etc/php/8.0 /etc/php/7.4
 # Create static files directory
 RUN mkdir -p staticfiles
 
+# Create a non-root user
+RUN useradd --create-home --shell /bin/bash app
+
 # Run Django commands
 RUN python manage.py collectstatic --noinput
 RUN python manage.py migrate
+
+# Change ownership of the app directory to the app user
+RUN chown -R app:app /app
+
+# Switch to non-root user
+USER app
 
 # Expose port
 EXPOSE 8000

@@ -1,0 +1,11 @@
+.bandit
+.eslintrc.json
+.pylintrc
+.codacy/**/*
+staticfiles/**/*
+node_modules/**/*
+venv/**/*
+.vscode/**/*
+**/*.min.js
+**/*.min.js.map
+test_*.py

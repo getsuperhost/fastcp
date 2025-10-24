@@ -1,5 +1,4 @@
 from django import forms
-from core.models import User
 from django.contrib.auth import authenticate
 
 
